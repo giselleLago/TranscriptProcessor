@@ -8,7 +8,7 @@ namespace TranscriptsProcessor.Services
 {
     public class FileManager : IFileManager
     {
-        public FileManager(ILogger logger)
+        public FileManager(ILogger<FileManager> logger)
         {
             Logger = logger;
         }
@@ -51,6 +51,6 @@ namespace TranscriptsProcessor.Services
             return File.WriteAllTextAsync($"{filePath}", text);
         }
 
-        private readonly ILogger Logger;
+        private readonly ILogger<FileManager> Logger;
     }
 }

@@ -20,7 +20,7 @@ namespace TranscriptsProcessorTests
             pendingFiles["user2"] = new List<string> { "UserData2a.mp3", "UserData2b.mp3", "UserData2c.mp3" };
             var fileContent = new byte[50];
 
-            var mockLogger = new Mock<ILogger>();
+            var mockLogger = new Mock<ILogger<Sender>>();
             var mockFileValidator = new Mock<IFileValidator>();
             var mockFileManager = new Mock<IFileManager>();
             var mockTranscriptService = new Mock<ITranscriptiService>();
@@ -64,7 +64,7 @@ namespace TranscriptsProcessorTests
 
             var isFirstCall = true;
 
-            var mockLogger = new Mock<ILogger>();
+            var mockLogger = new Mock<ILogger<Sender>>();
             var mockFileValidator = new Mock<IFileValidator>();
             var mockFileManager = new Mock<IFileManager>();
             var mockTranscriptService = new Mock<ITranscriptiService>();
@@ -114,7 +114,7 @@ namespace TranscriptsProcessorTests
             pendingFiles["user2"] = new List<string> { "UserData2a.mp3", "UserData2b.mp3", "UserData2c.mp3" };
             var fileContent = new byte[50];
 
-            var mockLogger = new Mock<ILogger>();
+            var mockLogger = new Mock<ILogger<Sender>>();
             var mockFileValidator = new Mock<IFileValidator>();
             var mockFileManager = new Mock<IFileManager>();
             var mockTranscriptService = new Mock<ITranscriptiService>();

@@ -13,13 +13,13 @@ namespace TranscriptsProcessor
     {
         static int Main(string[] args)
         {
-            // Build configuration
+            //We can add Serilog NuGet Package to store logs in a txt file
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            // Set up Dependency Injection
             var serviceProvider = new ServiceCollection()
                 .AddLogging(builder =>
                 {
@@ -45,7 +45,7 @@ namespace TranscriptsProcessor
                 try
                 {
                     var services = host.Services.CreateScope().ServiceProvider;
-                    var logger = serviceProvider.GetService<ILogger<Program>>();
+                    var logger = serviceProvider.GetService<ILogger<Scheduler>>();
                     var transcriptService = serviceProvider.GetService<ITranscriptiService>();
                     var sender = serviceProvider.GetService<ISender>();
                     var fileManager = serviceProvider.GetService<IFileManager>();

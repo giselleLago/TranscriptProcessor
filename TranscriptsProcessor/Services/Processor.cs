@@ -5,7 +5,7 @@ namespace TranscriptsProcessor.Services
 {
     public class Processor
     {
-        public Processor(ILogger logger,
+        public Processor(ILogger<Processor> logger,
                          IFileManager pendingFile,
                          ISender senderService)
         {
@@ -24,7 +24,7 @@ namespace TranscriptsProcessor.Services
 
 
         private string FilePath;
-        private readonly ILogger Logger;
+        private readonly ILogger<Processor> Logger;
         private readonly IFileManager PendingFiles;
         private readonly ISender SenderService;
     }

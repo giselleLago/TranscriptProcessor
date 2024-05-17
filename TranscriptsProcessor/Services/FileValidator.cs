@@ -5,14 +5,14 @@ namespace TranscriptsProcessor.Services
 {
     public class FileValidator : IFileValidator
     {
-        public FileValidator(ILogger logger)
+        public FileValidator(ILogger<FileValidator> logger)
         {
             Logger = logger;
         }
 
         public bool ValidateFiles(string filePath)
         {
-            return IsValidSize(filePath) && IsValidBasicMP3(filePath);// && ContainsMP3Headers(filePath);
+            return IsValidSize(filePath) && IsValidBasicMP3(filePath);
         }
 
         private bool IsValidSize(string filePath)
@@ -40,21 +40,8 @@ namespace TranscriptsProcessor.Services
             return true;
         }
 
-        //ToCheck
-        public bool ContainsMP3Headers(string filePath)
-        {
-            using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            var buffer = new byte[10];  // Read first 10 bytes from the file
-            while (fs.Read(buffer, 0, buffer.Length) == buffer.Length)
-            {
-                if ((buffer[0] == 0xFF) && ((buffer[1] & 0xE0) == 0xE0))
-                {
-                    return true;  // Found an MP3 frame header
-                }
-            }
-            return false;
-        }
+        //We can also add Mp3 headers check
 
-        private readonly ILogger Logger;
+        private readonly ILogger<FileValidator> Logger;
     }
 }

@@ -7,7 +7,7 @@ namespace TranscriptsProcessor.Services
 {
     public class Scheduler
     {
-        public Scheduler(ILogger logger,
+        public Scheduler(ILogger<Scheduler> logger,
                          IFileManager fileGetter,
                          ISender senderService)
         {
@@ -47,14 +47,14 @@ namespace TranscriptsProcessor.Services
 
         private Task PerformScheduledTask()
         {
-            Console.WriteLine("Performing scheduled task at " + DateTime.Now);
+            Logger.LogInformation("Performing scheduled task at " + DateTime.Now);
             var service = new Processor(Logger, PendingFileGetter, SenderService);
             return service.Run(FilePath);
         }
 
         private Timer timer;
         private string FilePath;
-        private readonly ILogger Logger;
+        private readonly ILogger<Scheduler> Logger;
         private readonly IFileManager PendingFileGetter;
         private readonly ISender SenderService;
     }

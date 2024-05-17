@@ -11,15 +11,15 @@ namespace TranscriptsProcessor.Services
 {
     public class Sender : ISender
     {
-        public Sender(ILogger logger,
+        public Sender(ILogger<Sender> logger,
                       IFileValidator validator,
                       IFileManager fileManager,
-                      ITranscriptiService mockTranscriptionService)
+                      ITranscriptiService transcriptionService)
         {
             Logger = logger;
             Validator = validator;
             FileManager = fileManager;
-            MockTranscriptionService = mockTranscriptionService;
+            TranscriptionService = transcriptionService;
         }
 
         public async Task SendFilesAsync(Dictionary<string, List<string>> userDictionary)
@@ -54,11 +54,11 @@ namespace TranscriptsProcessor.Services
                 }
                 catch (IOException e)
                 {
-                    Console.WriteLine($"An IO exception was caught: {e.Message}");
+                    Logger.LogWarning($"An IO exception was caught: {e.Message}");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"An exception was caught: {e.Message}");
+                    Logger.LogWarning($"An exception was caught: {e.Message}");
                 }
             }
 
@@ -71,7 +71,7 @@ namespace TranscriptsProcessor.Services
             {
                 Logger.LogInformation("Sending MP3 files to FTS INVOX to transcript");
 
-                var text = MockTranscriptionService.Transcribe(userPath, fileName);
+                var text = TranscriptionService.Transcribe(userPath, fileName);
 
                 var filePath = fileName.Substring(0, fileName.Length - 3) + "txt";
 
@@ -82,13 +82,14 @@ namespace TranscriptsProcessor.Services
             {
                 if (retryAttempt > 0)
                 {
+                    //Here we can use a RetryPolicy installing "Polly" NuGet Package and define the basic or the exponential backoff
                     Logger.LogInformation($"Resend to transcript file {fileName}");
                     retryAttempt--;
                     SendToTranscript(userPath, retryAttempt, fileName, fileContents);
                 }
                 else
                 {
-                    ErrorFiles.Enqueue(fileName);
+                    ErrorFiles.Add(fileName);
                 }
             }
         }
@@ -104,10 +105,10 @@ namespace TranscriptsProcessor.Services
             return blocks;
         }
 
-        private readonly ConcurrentQueue<string> ErrorFiles = new ConcurrentQueue<string>();
-        private readonly ILogger Logger;
+        private readonly ConcurrentBag<string> ErrorFiles = new ConcurrentBag<string>();
+        private readonly ILogger<Sender> Logger;
         private readonly IFileValidator Validator;
         private readonly IFileManager FileManager;
-        private readonly ITranscriptiService MockTranscriptionService;
+        private readonly ITranscriptiService TranscriptionService;
     }
 }
