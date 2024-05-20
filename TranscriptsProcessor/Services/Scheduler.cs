@@ -5,15 +5,15 @@ using System.Timers;
 
 namespace TranscriptsProcessor.Services
 {
-    public class Scheduler
+    public sealed class Scheduler
     {
         public Scheduler(ILogger<Scheduler> logger,
-                         IFileManager fileGetter,
-                         ISender senderService)
+                         IFileManager fileManager,
+                         ISender sender)
         {
             Logger = logger;
-            PendingFileGetter = fileGetter;
-            SenderService = senderService;
+            FileManager = fileManager;
+            Sender = sender;
         }
 
         public void Start(string filePath)
@@ -25,13 +25,13 @@ namespace TranscriptsProcessor.Services
                 timeToGo += TimeSpan.FromDays(1); // next day if it's already past midnight
             }
 
-            timer = new Timer(timeToGo.TotalMilliseconds);
-            timer.Elapsed += (sender, args) => TimerElapsed(sender, args, timer);
-            timer.AutoReset = false; // Ensure the timer runs only once
-            timer.Start();
+            Timer = new Timer(timeToGo.TotalMilliseconds);
+            Timer.Elapsed += (sender, args) => TimerElapsed(Timer);
+            Timer.AutoReset = false; // Ensure the timer runs only once
+            Timer.Start();
         }
 
-        private void TimerElapsed(object sender, ElapsedEventArgs e, Timer timer)
+        private void TimerElapsed(Timer timer)
         {
             PerformScheduledTask();
 
@@ -48,14 +48,14 @@ namespace TranscriptsProcessor.Services
         private Task PerformScheduledTask()
         {
             Logger.LogInformation("Performing scheduled task at " + DateTime.Now);
-            var service = new Processor(Logger, PendingFileGetter, SenderService);
+            var service = new Processor(Logger, FileManager, Sender);
             return service.Run(FilePath);
         }
 
-        private Timer timer;
+        private Timer Timer;
         private string FilePath;
         private readonly ILogger<Scheduler> Logger;
-        private readonly IFileManager PendingFileGetter;
-        private readonly ISender SenderService;
+        private readonly IFileManager FileManager;
+        private readonly ISender Sender;
     }
 }

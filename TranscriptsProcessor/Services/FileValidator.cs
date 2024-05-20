@@ -3,7 +3,7 @@ using System.IO;
 
 namespace TranscriptsProcessor.Services
 {
-    public class FileValidator : IFileValidator
+    public sealed class FileValidator : IFileValidator
     {
         public FileValidator(ILogger<FileValidator> logger)
         {

@@ -3,29 +3,26 @@ using System.Threading.Tasks;
 
 namespace TranscriptsProcessor.Services
 {
-    public class Processor
+    public sealed class Processor
     {
-        public Processor(ILogger<Processor> logger,
-                         IFileManager pendingFile,
-                         ISender senderService)
+        public Processor(ILogger logger,
+                         IFileManager fileManager,
+                         ISender sender)
         {
             Logger = logger;
-            PendingFiles = pendingFile;
-            SenderService = senderService;
+            FileManager = fileManager;
+            Sender = sender;
         }
 
         public async Task Run(string filePath)
         {
             Logger.LogInformation("Running Processor service.");
-            FilePath = filePath;
-            var userDictionary = PendingFiles.GetPendingFiles(FilePath);
-            await SenderService.SendFilesAsync(userDictionary);
+            var userDictionary = FileManager.GetPendingFiles(filePath);
+            await Sender.SendFilesAsync(userDictionary);
         }
 
-
-        private string FilePath;
-        private readonly ILogger<Processor> Logger;
-        private readonly IFileManager PendingFiles;
-        private readonly ISender SenderService;
+        private readonly ILogger Logger;
+        private readonly IFileManager FileManager;
+        private readonly ISender Sender;
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TranscriptsProcessor.Services
 {
-    public class FileManager : IFileManager
+    public sealed class FileManager : IFileManager
     {
         public FileManager(ILogger<FileManager> logger)
         {

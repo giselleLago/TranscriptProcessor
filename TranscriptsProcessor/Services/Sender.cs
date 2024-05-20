@@ -9,15 +9,15 @@ using TranscriptsProcessor.TranscriptionService;
 
 namespace TranscriptsProcessor.Services
 {
-    public class Sender : ISender
+    public sealed class Sender : ISender
     {
         public Sender(ILogger<Sender> logger,
-                      IFileValidator validator,
+                      IFileValidator fileValidator,
                       IFileManager fileManager,
                       ITranscriptiService transcriptionService)
         {
             Logger = logger;
-            Validator = validator;
+            FileValidator = fileValidator;
             FileManager = fileManager;
             TranscriptionService = transcriptionService;
         }
@@ -32,11 +32,6 @@ namespace TranscriptsProcessor.Services
                     await SendUserFilesAsync(splitFilePath, userPath);
                 }
             }
-
-            if (ErrorFiles.Any())
-            {
-                Logger.LogWarning($"Fail to transcript the following documents: {ErrorFiles}");
-            }
         }
 
         private Task SendUserFilesAsync(List<string> splitFilePath, string userPath)
@@ -45,10 +40,10 @@ namespace TranscriptsProcessor.Services
             {
                 try
                 {
-                    if (Validator.ValidateFiles($"{userPath}\\{filePath}"))
+                    if (FileValidator.ValidateFiles($"{userPath}\\{filePath}"))
                     {
                         var fileContent = FileManager.ReadAllBytes(filePath);
-                        var retryAttempt = 2;
+                        var retryAttempt = 3;
                         SendToTranscript(userPath, retryAttempt, filePath, fileContent);
                     }
                 }
@@ -80,15 +75,16 @@ namespace TranscriptsProcessor.Services
             }
             catch (Exception)
             {
-                if (retryAttempt > 0)
+                //Here we can use a RetryPolicy installing "Polly" NuGet Package and define the basic or the exponential backoff
+                if (retryAttempt > 1)
                 {
-                    //Here we can use a RetryPolicy installing "Polly" NuGet Package and define the basic or the exponential backoff
                     Logger.LogInformation($"Resend to transcript file {fileName}");
                     retryAttempt--;
                     SendToTranscript(userPath, retryAttempt, fileName, fileContents);
                 }
                 else
                 {
+                    Logger.LogError($"The program was not able to transcript file {fileName}");
                     ErrorFiles.Add(fileName);
                 }
             }
@@ -107,7 +103,7 @@ namespace TranscriptsProcessor.Services
 
         private readonly ConcurrentBag<string> ErrorFiles = new ConcurrentBag<string>();
         private readonly ILogger<Sender> Logger;
-        private readonly IFileValidator Validator;
+        private readonly IFileValidator FileValidator;
         private readonly IFileManager FileManager;
         private readonly ITranscriptiService TranscriptionService;
     }
